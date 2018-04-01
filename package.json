@@ -1,0 +1,12 @@
+{
+  "name": "size-per-type",
+  "version": "1.0.0",
+  "description": "",
+  "main": "size-per-type.js",
+  "scripts": {},
+  "author": "Bo Ericsson <bo@boe.net> (http://www.boe.net)",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "^3.5.17"
+  }
+}
