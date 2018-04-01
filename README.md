@@ -7,6 +7,12 @@ Various output options are available. In addition to the size/count per file typ
 
 The script uses Javascript ES-6, including promises, async/await, for-of loops, etc., and therefore requires an ES-6 compatible version of NodeJS. The script has been tested with **NodeJS version 8.10.0**
 
+### Invocation
+1. `node size-per-type .`
+2. `./size-per-type .`
+
+For the second type of invocation, make sure the script is executable by running the command `chmod +x size-per-type.js` in the directory where the script resides.
+
 ### Usage
 ```
 Usage: ./size-per-type options target
