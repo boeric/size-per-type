@@ -105,13 +105,20 @@ async function listDirectory(dir, indent) {
                 // Process the directory entries
                 for (let entry of entries) {
                     const path = `${ dir.node }/${ entry }`;
-                    const stats = await getStats(path);
-                    const target = stats.isFile() ? foundFiles : foundDirs;
-
-                    target.push({
-                        name: entry,
-                        size: stats.size || 0
-                    });
+                    // Determine if this entry is a symbolic link
+                    const linkStats = await getLinkStats(path);
+                    const symLink = linkStats.isSymbolicLink();
+                    // Don't process symbolic links
+                    if (!symLink) {
+                        const stats = await getStats(path);
+                        if (stats !== undefined) {
+                            const target = stats.isFile() ? foundFiles : foundDirs;
+                            target.push({
+                                name: entry,
+                                size: stats.size || 0
+                            });
+                        }
+                    }
                 }
             })
             .then(async () => {
@@ -162,7 +169,7 @@ async function listDirectory(dir, indent) {
                 resolve();
             })
             .catch(e => {
-                console.error(`Error:' ${ e }`);
+                console.error(`Error (listDirectory):' ${ e }`);
             });
     });
 }
@@ -184,8 +191,7 @@ function getDirectoryEntries(dir) {
                 }
             });
         } catch(error) {
-            console.error(`Error:' ${ error }`);
-            reject(error);
+            console.error(`Error (getDirectoryEntries):' ${ error }`);
         }
     });
 }
@@ -199,14 +205,35 @@ function getStats(path) {
     return new Promise((resolve, reject) => {
         try {
             fs.stat(path, (error, stats) => {
-                resolve(stats);
                 if (error) {
                     reject(error);
+                } else {
+                    resolve(stats);
                 }
             });
         } catch(error) {
-            console.error(`Error:' ${ error }`);
-            reject(error);
+            console.error(`Error (getStats):' ${ error }`);
+        }
+    });
+}
+
+/**
+ * Returns a promise which will provide link stats for the specified file path
+ *
+ * @param {string} path - String specififying a file or directory path
+ */
+function getLinkStats(path) {
+    return new Promise((resolve, reject) => {
+        try {
+            fs.lstat(path, (error, stats) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(stats);
+                }
+            });
+        } catch(error) {
+            console.error(`Error (getLinkStats):' ${ error }`)
         }
     });
 }
